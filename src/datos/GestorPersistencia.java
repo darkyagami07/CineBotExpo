@@ -18,13 +18,13 @@ public class GestorPersistencia {
         // El 'true' en FileWriter habilita el modo APPEND (no sobreescribe, agrega al final)
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(ARCHIVO_USUARIOS, true))) {
             if (!existe) {
-                bw.write("Nombre,Genero,AnioNacimiento,PeliculaRecomendada");
+                bw.write("Nombre,Genero,AñoNacimiento,PeliculaRecomendada");
                 bw.newLine();
             }
             String linea = String.format("%s,%s,%d,%s",
                     usuario.getNombre(),
                     usuario.getGenero(),
-                    usuario.getanoNacimiento(),
+                    usuario.getAñoNacimiento(),
                     usuario.getPeliculaRecomendada());
             bw.write(linea);
             bw.newLine();
