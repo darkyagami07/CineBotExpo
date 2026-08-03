@@ -1,5 +1,4 @@
 package logica;
-
 import datos.GestorCatalogo;
 import models.Pelicula;
 import java.util.HashSet;
