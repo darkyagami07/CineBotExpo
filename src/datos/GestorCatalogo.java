@@ -1,28 +1,27 @@
 package datos;
-
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import models.Pelicula;
 
 public class GestorCatalogo {
     private static GestorCatalogo instancia;
-    private List<Pelicula> catálogoPeliculas;
+    private List<Pelicula> catalogoPeliculas;
     private Map<String, String> diccionarioSinonimos;
 
     private GestorCatalogo() {
-        catálogoPeliculas = new ArrayList<>();
+        catalogoPeliculas = new ArrayList<>();
         diccionarioSinonimos = new HashMap<>();
         cargarPeliculasCSV("peliculas.csv");
         cargarSinonimosCSV("sinonimos.csv");
     }
 
-    // Método Singleton: Garantiza una única instancia en toda la app
+    // Patron Singleton
     public static synchronized GestorCatalogo getInstancia() {
         if (instancia == null) {
             instancia = new GestorCatalogo();
@@ -30,47 +29,86 @@ public class GestorCatalogo {
         return instancia;
     }
 
-    // Carga con BufferedReader y protección try-catch
     private void cargarPeliculasCSV(String rutaArchivo) {
-        try (BufferedReader br = new BufferedReader(new FileReader(rutaArchivo))) {
+        File archivo = new File(rutaArchivo);
+        if (!archivo.exists()) {
+            System.err.println("Error: No se encontro el archivo " + rutaArchivo);
+            return;
+        }
+
+        try (BufferedReader br = new BufferedReader(new FileReader(archivo))) {
             String linea;
-            boolean primeraLinea = true; // Para omitir encabezado del CSV
+            boolean primeraLinea = true;
+
             while ((linea = br.readLine()) != null) {
+                if (linea.trim().isEmpty()) continue;
                 if (primeraLinea) { primeraLinea = false; continue; }
+
                 String[] datos = linea.split(",");
                 if (datos.length >= 4) {
-                    int id = Integer.parseInt(datos[0].trim());
-                    String titulo = datos[1].trim();
-                    String genero = datos[2].trim();
-                    String[] palabras = datos[3].trim().toLowerCase().split(";");
-                    catálogoPeliculas.add(new Pelicula(id, titulo, genero, palabras));
+                    try {
+                        int id = Integer.parseInt(datos[0].trim());
+                        String titulo = datos[1].trim();
+                        String genero = datos[2].trim();
+                        
+                        // Limpiamos comillas y separamos palabras clave por ';'
+                        String palabrasBrutas = datos[3].replace("\"", "").trim().toLowerCase();
+                        String[] palabras = palabrasBrutas.split(";");
+
+                        catalogoPeliculas.add(new Pelicula(id, titulo, genero, palabras));
+                    } catch (NumberFormatException e) {
+                        System.err.println("Advertencia: Se omitio una fila con ID invalido en peliculas.csv");
+                    }
                 }
             }
-            System.out.println("Catálogo cargado correctamente (" + catálogoPeliculas.size() + " películas).");
-        } catch (IOException | NumberFormatException e) {
+            System.out.println("Catalogo cargado correctamente (" + catalogoPeliculas.size() + " peliculas).");
+        } catch (IOException e) {
             System.err.println("Error al leer peliculas.csv: " + e.getMessage());
         }
     }
 
     private void cargarSinonimosCSV(String rutaArchivo) {
-        try (BufferedReader br = new BufferedReader(new FileReader(rutaArchivo))) {
+        File archivo = new File(rutaArchivo);
+        if (!archivo.exists()) {
+            System.err.println("Error: No se encontro el archivo " + rutaArchivo);
+            return;
+        }
+
+        try (BufferedReader br = new BufferedReader(new FileReader(archivo))) {
             String linea;
             boolean primeraLinea = true;
+
             while ((linea = br.readLine()) != null) {
+                if (linea.trim().isEmpty()) continue;
                 if (primeraLinea) { primeraLinea = false; continue; }
-                String[] datos = linea.split(",");
+
+                // Separar palabra oficial de sinonimos por la primera coma
+                String[] datos = linea.split(",", 2);
+
                 if (datos.length >= 2) {
-                    String sinonimo = datos[0].trim().toLowerCase();
-                    String palabraClaveOficial = datos[1].trim().toLowerCase();
-                    diccionarioSinonimos.put(sinonimo, palabraClaveOficial);
+                    String palabraClaveOficial = datos[0].replace("\"", "").trim().toLowerCase();
+                    String[] listaSinonimos = datos[1].replace("\"", "").split(",");
+
+                    for (String sinonimo : listaSinonimos) {
+                        String sinonimoLimpio = sinonimo.trim().toLowerCase();
+                        if (!sinonimoLimpio.isEmpty()) {
+                            diccionarioSinonimos.put(sinonimoLimpio, palabraClaveOficial);
+                        }
+                    }
                 }
             }
-            System.out.println("Diccionario de sinónimos cargado (" + diccionarioSinonimos.size() + " entradas).");
+            System.out.println("Diccionario de sinonimos cargado (" + diccionarioSinonimos.size() + " entradas).");
         } catch (IOException e) {
             System.err.println("Error al leer sinonimos.csv: " + e.getMessage());
         }
     }
 
-    public List<Pelicula> getCatálogoPeliculas() { return catálogoPeliculas; }
-    public Map<String, String> getDiccionarioSinonimos() { return diccionarioSinonimos; }
+    // --- GETTERS ---
+    public List<Pelicula> getCatalogoPeliculas() { 
+        return catalogoPeliculas; 
+    }
+
+    public Map<String, String> getDiccionarioSinonimos() { 
+        return diccionarioSinonimos; 
+    }
 }

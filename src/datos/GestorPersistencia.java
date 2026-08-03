@@ -31,7 +31,7 @@ public class GestorPersistencia {
             String linea = String.format("%s,%s,%d,%s",
                     usuario.getNombre(),
                     usuario.getGenero(),
-                    usuario.getAñoNacimiento(),
+                    usuario.getAnioNacimiento(),
                     peli);
 
             bw.write(linea);

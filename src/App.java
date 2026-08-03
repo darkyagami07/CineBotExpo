@@ -4,26 +4,24 @@ import reportes.EstadisticasServicio;
 
 public class App {
     public static void main(String[] args) {
-        
-        System.out.println("=== INICIALIZANDO CINEBOT ===");
+        System.out.println("=== INICIANDO PRUEBA INTEGRAL DE CINEBOT ===");
 
-        // 1. Cargar Catálogo (Singleton)
+        // 1. Cargar Catalogo
         GestorCatalogo catalogo = GestorCatalogo.getInstancia();
+        System.out.println("Catalogo y diccionario listos para usar.");
 
-        // 2. Simulador de prueba (descomentar para insertar un usuario de prueba)
+        // 2. Registro de prueba para verificar guardado en CSV
         try {
-            // Usuario de prueba para verificar el flujo completo
             Usuario u1 = new Usuario("Edward", "Masculino", 2007);
             u1.setPeliculaRecomendada("The Office");
-            
-            // GestorPersistencia.registrarUsuario(u1); // Descomenta si deseas registrar en cada ejecución
-        } catch (IllegalArgumentException e) {
-            System.err.println("Error en los datos del usuario: " + e.getMessage());
+            GestorPersistencia.registrarUsuario(u1);
+            System.out.println("Usuario de prueba registrado en CSV.");
         } catch (Exception e) {
-            System.err.println("Error en la ejecucion del sistema: " + e.getMessage());
+            System.err.println("Error en persistencia: " + e.getMessage());
         }
 
-        // 3. Mostrar Reportes Estadísticos basados en el CSV acumulado
+        // 3. Generar reportes estadisticos
+        System.out.println("\n--- GENERANDO REPORTES ---");
         EstadisticasServicio.mostrarReporteGeneral();
     }
 }

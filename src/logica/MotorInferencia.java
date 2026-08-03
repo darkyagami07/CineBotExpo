@@ -25,7 +25,7 @@ public class MotorInferencia {
 
     // TODO (Andrés y Arturo): Implementar aquí el algoritmo de puntuación y desempate
     public Pelicula recomendarPelicula(String mensajeUsuario) {
-        List<Pelicula> peliculas = catalogo.getCatálogoPeliculas();
+        List<Pelicula> peliculas = catalogo.getCatalogoPeliculas();
         
         // Lógica pendiente de desarrollo por Andrés y Arturo...
         
