@@ -3,8 +3,10 @@ import models.*;
 import reportes.EstadisticasServicio;
 
 
+
 public class App {
     public static void main(String[] args) {
+        
         System.out.println("=== INICIALIZANDO CINEBOT ===");
 
         // 1. Cargar Catálogo (Singleton)
