@@ -1,8 +1,6 @@
 import datos.*;
-import models.*;
+import models.*; // Asegúrate si es models o modelo según tu estructura
 import reportes.EstadisticasServicio;
-
-
 
 public class App {
     public static void main(String[] args) {
@@ -12,10 +10,11 @@ public class App {
         // 1. Cargar Catálogo (Singleton)
         GestorCatalogo catalogo = GestorCatalogo.getInstancia();
 
-        // 2. Simulamos registro de prueba con Try-Catch blindado
+        // 2. Registro de prueba con datos reales
         try {
-            Usuario u1 = new Usuario(null, null, 0);
+            Usuario u1 = new Usuario("Edward", "Masculino", 2007);
             u1.setPeliculaRecomendada("The Office");
+            
             GestorPersistencia.registrarUsuario(u1);
         } catch (Exception e) {
             System.err.println("Error no controlado: " + e.getMessage());

@@ -6,7 +6,7 @@ public class Usuario {
     public int añoNacimiento;
     public String peliculaRecomendada;
 
-    public Usuario(String nombre, String genero, int anoNacimiento) {
+    public Usuario(String nombre, String genero, int añoNacimiento) {
         this.nombre = nombre;
         this.genero = genero;
         this.añoNacimiento = añoNacimiento;
