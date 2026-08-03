@@ -1,50 +1,36 @@
 package logica;
-import java.util.ArrayList;
+
+import datos.GestorCatalogo;
+import models.Pelicula;
 import java.util.HashSet;
 import java.util.List;
 
-class Pelicula {
-    String titulo;
-    String[] palabrasClave;
-
-    public Pelicula(String titulo, String[] palabrasClave) {
-        this.titulo = titulo;
-        this.palabrasClave = palabrasClave;
-    }
-}
-
 public class MotorRecomendaciones {
 
-    private List<Pelicula> catalogo;
-    
-    private HashSet<String> memoriaActiva;
+    private HashSet<Integer> memoriaActiva; // Se guarda por ID para ser exactos
 
     public MotorRecomendaciones() {
-        this.catalogo = new ArrayList<>();
         this.memoriaActiva = new HashSet<>();
-        cargarCatalogo();
-    }
-
-    private void cargarCatalogo() {
-        catalogo.add(new Pelicula("Matrix", new String[]{"accion", "ciencia", "ficcion", "hacker"}));
-        catalogo.add(new Pelicula("El Conjuro", new String[]{"terror", "miedo", "fantasmas", "suspenso"}));
-        catalogo.add(new Pelicula("Superbad", new String[]{"comedia", "risa", "divertido", "humor"}));
     }
 
     public String buscarMejorPelicula(String textoProcesado) {
-        String[] palabrasUsuario = textoProcesado.split(" ");
+        String[] palabrasUsuario = textoProcesado.split("\\s+");
+        
+        // Se obtiene la lista completa de peliculas desde el CSV
+        List<Pelicula> catalogo = GestorCatalogo.getInstancia().getCatalogoPeliculas();
 
         Pelicula mejorPelicula = null;
         int maxPuntos = 0;
 
         for (Pelicula peli : catalogo) {
 
-            if (memoriaActiva.contains(peli.titulo)) {
+            // Memoria activa: ignora si ya se recomendó en la sesión
+            if (memoriaActiva.contains(peli.getId())) {
                 continue;
             }
 
             int puntosActuales = 0;
-            for (String palabraClave : peli.palabrasClave) {
+            for (String palabraClave : peli.getPalabrasClave()) {
                 for (String palabraUsuario : palabrasUsuario) {
                     if (palabraUsuario.equalsIgnoreCase(palabraClave)) {
                         puntosActuales++;
@@ -59,10 +45,14 @@ public class MotorRecomendaciones {
         }
 
         if (maxPuntos > 0 && mejorPelicula != null) {
-            memoriaActiva.add(mejorPelicula.titulo);
-            return "Te recomiendo ver '" + mejorPelicula.titulo + "'! (Coincidencias: " + maxPuntos + ")";
+            memoriaActiva.add(mejorPelicula.getId());
+            return "Te recomiendo ver '" + mejorPelicula.getTitulo() + "'! (Género: " + mejorPelicula.getGenero() + " | Coincidencias: " + maxPuntos + ")";
         } else {
             return "No encontré opciones nuevas para lo que buscas o ya te recomendé las películas disponibles en esa categoría.";
         }
+    }
+
+    public void limpiarMemoria() {
+        memoriaActiva.clear();
     }
 }

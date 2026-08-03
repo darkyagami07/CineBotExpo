@@ -1,34 +1,24 @@
 package logica;
-import java.util.HashMap;
+
+import datos.GestorCatalogo;
+import java.util.Map;
 
 public class ProcesadorPLN {
 
-    private HashMap<String, String> diccionarioPLN;
-
-    public ProcesadorPLN() {
-        diccionarioPLN = new HashMap<>();
-        cargarDiccionario();
-    }
-
-    private void cargarDiccionario() {
-        diccionarioPLN.put("peli", "pelicula");
-        diccionarioPLN.put("cinta", "pelicula");
-        diccionarioPLN.put("filme", "pelicula");
-        diccionarioPLN.put("largometraje", "pelicula");
-        diccionarioPLN.put("asustado", "miedo");
-        diccionarioPLN.put("terror", "miedo");
-        diccionarioPLN.put("bajoneado", "triste");
-        diccionarioPLN.put("fastidiado", "aburrido");
-    }
-
     public String procesadorTexto(String entrada) {
-        String textoLimpio = entrada.toLowerCase().replaceAll("[,.]", "");
+        if (entrada == null || entrada.trim().isEmpty()) return "";
+
+        // Limpieza de texto (quitar puntos, comas y signos)
+        String textoLimpio = entrada.toLowerCase().replaceAll("[^a-záéíóúñ0-9\\s]", "");
         
-        String[] palabras = textoLimpio.split(" ");
+        // Cargar diccionario dinámico desde el CSV a través de GestorCatalogo
+        Map<String, String> diccionarioPLN = GestorCatalogo.getInstancia().getDiccionarioSinonimos();
+        
+        String[] palabras = textoLimpio.split("\\s+");
         StringBuilder textoTraducido = new StringBuilder();
 
         for (String palabra : palabras) {
-            if (diccionarioPLN.containsKey(palabra)) {
+            if (diccionarioPLN != null && diccionarioPLN.containsKey(palabra)) {
                 textoTraducido.append(diccionarioPLN.get(palabra)).append(" ");
             } else {
                 textoTraducido.append(palabra).append(" ");
