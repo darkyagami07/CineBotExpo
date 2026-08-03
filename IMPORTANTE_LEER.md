@@ -1,5 +1,3 @@
-README
-
 IMPORTANTE LEER
 
 En este documento se encuentran los enlaces en los que se especifican los roles de cada uno.
