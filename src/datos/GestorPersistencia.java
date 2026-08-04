@@ -1,4 +1,5 @@
 package datos;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -6,28 +7,38 @@ import java.io.IOException;
 import models.Usuario;
 
 public class GestorPersistencia {
+
     private static final String ARCHIVO_USUARIOS = "usuarios_preferencias.csv";
 
+    /**
+     * Escribe los datos del usuario y su recomendacion en el archivo CSV.
+     * Utiliza el modo anexo (append) para no sobrescribir sesiones anteriores.
+     * 
+     * @param usuario Objeto con la informacion del usuario capturada en App.
+     */
     public static void registrarUsuario(Usuario usuario) {
         if (usuario == null) return;
 
         File archivo = new File(ARCHIVO_USUARIOS);
-        // Comprobamos si el archivo no existe O si está vacío (0 bytes)
+        
+        // Comprobamos si el archivo no existe O si esta vacio (0 bytes)
         boolean esNuevoOVacio = !archivo.exists() || archivo.length() == 0;
 
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(ARCHIVO_USUARIOS, true))) {
+        // FileWriter con el flag 'true' activa el modo anexo (append)
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(archivo, true))) {
             
-            // Si es un archivo nuevo o vacío, escribimos el encabezado y hacemos salto de línea
+            // Si es un archivo nuevo o vacio, escribimos la cabecera
             if (esNuevoOVacio) {
-                bw.write("Nombre,Genero,AñoNacimiento,PeliculaRecomendada");
+                bw.write("Nombre,Genero,AnioNacimiento,PeliculaRecomendada");
                 bw.newLine();
             }
 
-            // Validar que la película no venga nula para no escribir la palabra "null"
-            String peli = (usuario.getPeliculaRecomendada() != null) 
+            // Validar que la pelicula no venga nula
+            String peli = (usuario.getPeliculaRecomendada() != null && !usuario.getPeliculaRecomendada().isEmpty()) 
                           ? usuario.getPeliculaRecomendada() 
                           : "Sin recomendacion";
 
+            // Formatear la linea CSV
             String linea = String.format("%s,%s,%d,%s",
                     usuario.getNombre(),
                     usuario.getGenero(),
@@ -35,7 +46,7 @@ public class GestorPersistencia {
                     peli);
 
             bw.write(linea);
-            bw.newLine(); // Garantiza que la SIGUIENTE ejecución también quede en una fila nueva
+            bw.newLine(); // Garantiza el salto para la siguiente sesion
             
             System.out.println("[OK] Usuario guardado en el historial.");
 
