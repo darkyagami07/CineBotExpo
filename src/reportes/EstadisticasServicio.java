@@ -44,7 +44,7 @@ public class EstadisticasServicio {
                     continue; 
                 }
 
-                String[] datos = linea.split(",");
+                String[] datos = linea.split(";");
                 if (datos.length >= 4) {
                     try {
                         String generoPersona = datos[1].trim();

@@ -27,23 +27,28 @@ public class GestorPersistencia {
         // FileWriter con el flag 'true' activa el modo anexo (append)
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(archivo, true))) {
             
-            // Si es un archivo nuevo o vacio, escribimos la cabecera
+            // Si es un archivo nuevo o vacio, escribimos la cabecera usando punto y coma (;)
             if (esNuevoOVacio) {
-                bw.write("Nombre,Genero,AnioNacimiento,PeliculaRecomendada");
+                bw.write("Nombre;Genero;AnioNacimiento;PeliculaRecomendada");
                 bw.newLine();
             }
 
-            // Validar que la pelicula no venga nula
-            String peli = (usuario.getPeliculaRecomendada() != null && !usuario.getPeliculaRecomendada().isEmpty()) 
-                          ? usuario.getPeliculaRecomendada() 
+            // Validar que la pelicula no venga nula o vacia
+            String peli = (usuario.getPeliculaRecomendada() != null && !usuario.getPeliculaRecomendada().trim().isEmpty()) 
+                          ? usuario.getPeliculaRecomendada().trim() 
                           : "Sin recomendacion";
 
-            // Formatear la linea CSV
-            String linea = String.format("%s,%s,%d,%s",
-                    usuario.getNombre(),
-                    usuario.getGenero(),
+            // Limpieza básica por si el nombre o la película tienen comillas o comas/puntos y comas
+            String nombreLimpio = usuario.getNombre().replace(";", "").replace("\"", "");
+            String generoLimpio = usuario.getGenero().replace(";", "").replace("\"", "");
+            String peliLimpia = peli.replace(";", "").replace("\"", "");
+
+            // Formatear la linea CSV usando punto y coma (;) como separador
+            String linea = String.format("%s;%s;%d;%s",
+                    nombreLimpio,
+                    generoLimpio,
                     usuario.getAnioNacimiento(),
-                    peli);
+                    peliLimpia);
 
             bw.write(linea);
             bw.newLine(); // Garantiza el salto para la siguiente sesion

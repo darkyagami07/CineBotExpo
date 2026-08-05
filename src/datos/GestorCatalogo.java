@@ -9,14 +9,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import models.Pelicula;
 
 public class GestorCatalogo {
 
-    // 1. Instancia unica estatica (Singleton)
+    // 1. Instancia única estática (Singleton)
     private static GestorCatalogo instancia;
 
-    // Referencias protegidas contra modificacion
+    // Referencias protegidas contra modificación
     private final List<Pelicula> catalogoPeliculas;
     private final Map<String, String> diccionarioSinonimos;
 
@@ -44,13 +45,12 @@ public class GestorCatalogo {
             return;
         }
 
-        // Try-with-resources con bloques catch especificos
         try (BufferedReader br = new BufferedReader(new FileReader(archivo))) {
             String linea;
             boolean primeraLinea = true;
 
             while ((linea = br.readLine()) != null) {
-                // Validacion 1: Ignorar lineas vacias o de solo espacios
+                // Validación 1: Ignorar líneas vacías
                 if (linea.trim().isEmpty()) {
                     continue;
                 }
@@ -61,11 +61,12 @@ public class GestorCatalogo {
                     continue; 
                 }
 
-                String[] datos = linea.split(",");
+                // Expresión regular para separar por punto y coma ignorando comas dentro de comillas ("...")
+                String[] datos = linea.split(";(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
 
-                // Validacion 2: Prevenir ArrayIndexOutOfBoundsException si la linea esta incompleta
-                if (datos.length < 4) {
-                    System.err.println("Advertencia: Se omitio una fila defectuosa (columnas insuficientes) en peliculas.csv");
+                // Validación 2: Verificar que existan al menos 6 columnas
+                if (datos.length < 6) {
+                    System.err.println("Advertencia: Se omitio una fila defectuosa (menos de 6 columnas) en peliculas.csv");
                     continue;
                 }
 
@@ -73,14 +74,18 @@ public class GestorCatalogo {
                     int id = Integer.parseInt(datos[0].trim());
                     String titulo = datos[1].trim();
                     String genero = datos[2].trim();
+                    int anio = Integer.parseInt(datos[3].trim());
 
-                    String palabrasBrutas = datos[3].replace("\"", "").trim().toLowerCase();
+                    String palabrasBrutas = datos[4].replace("\"", "").trim().toLowerCase();
                     String[] palabras = palabrasBrutas.split("[-;]");
 
-                    this.catalogoPeliculas.add(new Pelicula(id, titulo, genero, palabras));
+                    String mensajeBot = datos[5].replace("\"", "").trim();
+
+                    // Pasa 'anio' y 'mensajeBot' (String único)
+                    this.catalogoPeliculas.add(new Pelicula(id, titulo, genero, anio, palabras, mensajeBot));
 
                 } catch (NumberFormatException e) {
-                    System.err.println("Advertencia: Se omitio una fila con ID invalido en peliculas.csv");
+                    System.err.println("Advertencia: Se omitio una fila con ID o Año invalido en peliculas.csv");
                 }
             }
             System.out.println("Catalogo cargado correctamente (" + this.catalogoPeliculas.size() + " peliculas).");
@@ -105,20 +110,17 @@ public class GestorCatalogo {
             boolean primeraLinea = true;
 
             while ((linea = br.readLine()) != null) {
-                // Validacion 1: Ignorar lineas vacias
                 if (linea.trim().isEmpty()) {
                     continue;
                 }
 
-                // Omitir encabezado
                 if (primeraLinea) { 
                     primeraLinea = false; 
                     continue; 
                 }
 
-                String[] datos = linea.split(",", 2);
+                String[] datos = linea.split(";");
 
-                // Validacion 2: Prevenir ArrayIndexOutOfBoundsException
                 if (datos.length < 2) {
                     System.err.println("Advertencia: Se omitio una linea invalida en sinonimos.csv");
                     continue;

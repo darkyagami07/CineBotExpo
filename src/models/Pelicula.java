@@ -6,23 +6,29 @@ public class Pelicula {
     private int id;
     private String titulo;
     private String genero;
+    private int anio;
     private String[] palabrasClave;
+    private String mensajeBot; // <--- Cambiado de String[] a String
 
-    public Pelicula(int id, String titulo, String genero, String[] palabrasClave) {
+    public Pelicula(int id, String titulo, String genero, int anio, String[] palabrasClave, String mensajeBot) {
         this.id = id;
         this.titulo = titulo;
         this.genero = genero;
+        this.anio = anio;
         this.palabrasClave = palabrasClave;
+        this.mensajeBot = mensajeBot;
     }
 
     public int getId() { return id; }
     public String getTitulo() { return titulo; }
     public String getGenero() { return genero; }
+    public int getAnio() { return anio; }
     public String[] getPalabrasClave() { return palabrasClave; }
+    public String getMensajeBot() { return mensajeBot; } // <--- Cambiado a String
 
     @Override
     public String toString() {
-        return "ID: " + id + " | Título: " + titulo + " | Género: " + genero + 
-               " | Claves: " + Arrays.toString(palabrasClave);
+        return "ID: " + id + " | Título: " + titulo + " | Género: " + genero + " | Año: " + anio +
+               " | Claves: " + Arrays.toString(palabrasClave) + " | Mensaje Bot: " + mensajeBot;
     }
 }
