@@ -1,0 +1,14 @@
+Fase 3 — Estado: parcial — falta implementar PLN e integración.
+
+Falta: ProcesadorPLN (normalización, limpieza, mapeo de sinónimos usando el diccionario cargado en GestorCatalogo).
+Falta: integrar ProcesadorPLN con MotorRecomendaciones y con App (actualmente App tiene el placeholder comentado).
+Mejora: MotorRecomendaciones hace scoring básico pero necesita criterio de desempate explícito y posible afinamiento de puntuación.
+Archivos relevantes: MotorRecomendaciones.java. Implementar: src/logica/ProcesadorPLN.java y la llamada desde App.java.
+
+
+Fase 4 — Estado: parcial.
+
+Hecho: EstadisticasServicio existe y se llama al cerrar la sesión.
+Falta: menú de consulta de reportes en tiempo de ejecución (opción en consola para ver reportes antes de salir).
+Mejora: eliminar años hard-coded (2026) en Usuario y EstadisticasServicio (usar Year.now()).
+Archivos: EstadisticasServicio.java.
