@@ -46,19 +46,24 @@ public class GestorCatalogo {
 
                 String[] datos = linea.split(",");
                 if (datos.length >= 4) {
-                    try {
-                        int id = Integer.parseInt(datos[0].trim());
-                        String titulo = datos[1].trim();
-                        String genero = datos[2].trim();
-                        
-                        // Limpiamos comillas y separamos palabras clave por ';'
-                        String palabrasBrutas = datos[3].replace("\"", "").trim().toLowerCase();
-                        String[] palabras = palabrasBrutas.split(";");
+                   try {
+                int id = Integer.parseInt(datos[0].trim());
+                String titulo = datos[1].trim();
+                String genero = datos[2].trim();
+                
+                // Palabras clave en la posicion 4
+                String palabrasBrutas = datos[4].replace("\"", "").trim().toLowerCase();
+                String[] palabras = palabrasBrutas.split(";");
+                
+                // NUEVO: Extraemos el mensaje del bot en la posicion 5
+                String mensajeBot = datos[5].replace("\"", "").trim();
 
-                        catalogoPeliculas.add(new Pelicula(id, titulo, genero, palabras));
-                    } catch (NumberFormatException e) {
-                        System.err.println("Advertencia: Se omitio una fila con ID invalido en peliculas.csv");
-                    }
+                // AHORA PASAMOS LOS 5 PARÁMETROS AQUÍ
+                catalogoPeliculas.add(new Pelicula(id, titulo, genero, palabras, mensajeBot));
+                
+            } catch (NumberFormatException e) {
+                System.err.println("Advertencia: Se omitió una fila con ID inválido.");
+            }
                 }
             }
             System.out.println("Catalogo cargado correctamente (" + catalogoPeliculas.size() + " peliculas).");
@@ -87,7 +92,7 @@ public class GestorCatalogo {
 
                 if (datos.length >= 2) {
                     String palabraClaveOficial = datos[0].replace("\"", "").trim().toLowerCase();
-                    String[] listaSinonimos = datos[1].replace("\"", "").split(",");
+                   String[] listaSinonimos = datos[1].replace("\"", "").split("\\|");
 
                     for (String sinonimo : listaSinonimos) {
                         String sinonimoLimpio = sinonimo.trim().toLowerCase();

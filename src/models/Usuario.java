@@ -7,11 +7,13 @@ public class Usuario {
     private int anioNacimiento;
     private String peliculaRecomendada;
 
+    private String generoPreferido;
     // Constructor con validaciones básicas
-    public Usuario(String nombre, String genero, int anioNacimiento) {
+  public Usuario(String nombre, String genero, int anioNacimiento, String generoPreferido) {
         setNombre(nombre);
         setGenero(genero);
         setAnioNacimiento(anioNacimiento);
+        this.generoPreferido = generoPreferido;
         this.peliculaRecomendada = "Sin recomendación";
     }
 
@@ -19,6 +21,7 @@ public class Usuario {
 
     public String getNombre() { 
         return nombre; 
+    
     }
 
     public void setNombre(String nombre) {
@@ -69,7 +72,16 @@ public class Usuario {
     public int getEdad(int anioActual) {
         return anioActual - this.anioNacimiento;
     }
+  
+    // Método para LEER el género preferido (esto quita la advertencia amarilla)
+    public String getGeneroPreferido() {
+        return generoPreferido;
+    }
 
+    // Método para ACTUALIZAR el género preferido (lo usaremos desde Registro.java)
+    public void setGeneroPreferido(String generoPreferido) {
+        this.generoPreferido = generoPreferido;
+    }
     @Override
     public String toString() {
         return String.format("Usuario: %s | Género: %s | Año: %d | Recomendación: %s", 
