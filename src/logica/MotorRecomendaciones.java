@@ -19,6 +19,10 @@ public class MotorRecomendaciones {
     }
 
     public String buscarMejorPelicula(String textoProcesado) {
+        if (textoProcesado == null || textoProcesado.trim().isEmpty()) {
+            return "No recibí ningún texto. ¿Qué tipo de película buscas hoy?";
+        }
+
         // Reutilización de contexto si el usuario pide "otra", "siguiente" o rechaza la opción anterior
         if ((textoProcesado.contains("otra") || textoProcesado.contains("mas") || textoProcesado.contains("siguiente")
                 || textoProcesado.contains("no") || textoProcesado.contains("gusta") || textoProcesado.contains("cambia") 
@@ -27,7 +31,7 @@ public class MotorRecomendaciones {
             textoProcesado = textoProcesado + " " + ultimoContextoExitoso;
         }
 
-        String[] palabrasUsuario = textoProcesado.split("\\s+");
+        String[] palabrasUsuario = textoProcesado.toLowerCase().split("\\s+");
         List<Pelicula> catalogo = GestorCatalogo.getInstancia().getCatalogoPeliculas();
 
         Pelicula mejorPelicula = null;
@@ -40,19 +44,31 @@ public class MotorRecomendaciones {
             }
 
             int puntosActuales = 0;
+            
+            // Comparación mejorada y flexible
             for (String palabraClave : peli.getPalabrasClave()) {
+                String claveLimpia = palabraClave.trim().toLowerCase();
+                if (claveLimpia.isEmpty()) continue;
+
                 for (String palabraUsuario : palabrasUsuario) {
-                    if (palabraUsuario.equalsIgnoreCase(palabraClave)) {
+                    String uLimpia = palabraUsuario.trim();
+                    if (uLimpia.isEmpty()) continue;
+
+                    // Coincidencia exacta o contenida (para evitar fallos por subcadenas)
+                    if (uLimpia.equalsIgnoreCase(claveLimpia) || 
+                        claveLimpia.contains(uLimpia) || 
+                        uLimpia.contains(claveLimpia)) {
                         puntosActuales++;
                     }
                 }
             }
 
-            // Selección por mayor puntuación y desempate por ID más reciente
+            // Selección por mayor puntuación
             if (puntosActuales > maxPuntos) {
                 maxPuntos = puntosActuales;
                 mejorPelicula = peli;
-            } else if (puntosActuales == maxPuntos && maxPuntos > 0) {
+            } else if (puntosActuales == maxPuntos && maxPuntos > 0 && mejorPelicula != null) {
+                // Desempate por ID más reciente
                 if (peli.getId() > mejorPelicula.getId()) {
                     mejorPelicula = peli;
                 }
@@ -65,7 +81,6 @@ public class MotorRecomendaciones {
             this.ultimaRecomendada = mejorPelicula;
             this.ultimoContextoExitoso = textoProcesado;
 
-            // Generación de lenguaje natural dinámica (NLG)
             String[] introducciones = {
                 "¡Tengo la opción perfecta! Te recomiendo ",
                 "Pensando en lo que me dices, creo que disfrutarás de ",
@@ -93,7 +108,7 @@ public class MotorRecomendaciones {
                 return "¡Ups! Mi núcleo de procesamiento está calibrado exclusivamente para el séptimo arte. No resuelvo operaciones matemáticas ni consultas generales. ¡Pero pregúntame de cine! ¿Qué género te gustaría ver?";
             }
 
-            // Fallback para mensajes fuera de contexto o sin coincidencias
+            // Fallback
             String[] fueraDeContexto = {
                 "No logré identificar una emoción o temática en tu mensaje. Recuerda que soy una IA especializada únicamente en recomendar películas. ¿De qué humor estás hoy?",
                 "Mi base de datos no encontró coincidencias con eso. Como asistente cinematográfico, mi misión es hablar de cine. ¿Buscamos alguna película?",

@@ -5,18 +5,24 @@ import java.util.Map;
 
 public class ProcesadorPLN {
 
-    public String procesadorTexto(String entrada) {
-        if (entrada == null || entrada.trim().isEmpty()) return "";
+    /**
+     * Limpia la entrada del usuario y reemplaza sinónimos por la palabra clave oficial.
+     */
+    public static String procesadorTexto(String entrada) {
+        if (entrada == null || entrada.trim().isEmpty()) {
+            return "";
+        }
 
-        // Limpieza de texto (quitar puntos, comas y signos)
-        String textoLimpio = entrada.toLowerCase().replaceAll("[^a-záéíóúñ0-9\\s]", "");
+        // 1. Convertir a minúsculas y eliminar signos de puntuación / caracteres especiales
+        String textoLimpio = entrada.toLowerCase().replaceAll("[^a-záéíóúñ0-9\\s]", "").trim();
         
-        // Cargar diccionario dinámico desde el CSV a través de GestorCatalogo
+        // 2. Obtener el diccionario dinámico cargado desde GestorCatalogo
         Map<String, String> diccionarioPLN = GestorCatalogo.getInstancia().getDiccionarioSinonimos();
         
         String[] palabras = textoLimpio.split("\\s+");
         StringBuilder textoTraducido = new StringBuilder();
 
+        // 3. Traducir cada palabra según el mapa de sinónimos
         for (String palabra : palabras) {
             if (diccionarioPLN != null && diccionarioPLN.containsKey(palabra)) {
                 textoTraducido.append(diccionarioPLN.get(palabra)).append(" ");
@@ -24,6 +30,7 @@ public class ProcesadorPLN {
                 textoTraducido.append(palabra).append(" ");
             }
         }
+        
         return textoTraducido.toString().trim();
     }
 }

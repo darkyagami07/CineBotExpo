@@ -76,7 +76,7 @@ public class GestorCatalogo {
                     int anio = Integer.parseInt(datos[3].trim());
 
                     String palabrasBrutas = datos[4].replace("\"", "").trim().toLowerCase();
-                    String[] palabras = palabrasBrutas.split("[-;]");
+                    String[] palabras = palabrasBrutas.split("[-;,]");
 
                     String mensajeBot = datos[5].replace("\"", "").trim();
 
@@ -135,6 +135,10 @@ public class GestorCatalogo {
                     }
                 }
             }
+
+            // ✅ LÍNEAS Ubicadas tras procesar todo el CSV
+            System.out.println("Películas cargadas en memoria: " + this.catalogoPeliculas.size());
+            System.out.println("Sinónimos cargados en memoria: " + this.diccionarioSinonimos.size());
             System.out.println("Diccionario de sinonimos cargado (" + this.diccionarioSinonimos.size() + " entradas).");
 
         } catch (FileNotFoundException e) {

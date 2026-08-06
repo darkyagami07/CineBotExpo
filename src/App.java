@@ -2,6 +2,7 @@ import java.time.Year;
 import java.util.Scanner;
 import datos.*;
 import models.*;
+import logica.*; // 1. Importante: importamos el paquete de la lógica
 import reportes.EstadisticasServicio;
 
 public class App {
@@ -13,6 +14,9 @@ public class App {
         // 1. Cargar Catalogo (Singleton)
         GestorCatalogo catalogo = GestorCatalogo.getInstancia();
         System.out.println("Catalogo y diccionario listos para usar.\n");
+
+        // Instanciar el motor de recomendaciones
+        MotorRecomendaciones motorRecomendaciones = new MotorRecomendaciones();
 
         System.out.println("-----------------------------------------");
         System.out.println("     REGISTRO DE USUARIO                 ");
@@ -58,7 +62,7 @@ public class App {
         Usuario usuarioActual = new Usuario(nombre, genero, anioNacimiento);
 
         System.out.println("\n-----------------------------------------");
-        System.out.println(" Hola " + usuarioActual.getNombre() + "! En que te puedo ayudar hoy?");
+        System.out.println(" Hola " + usuarioActual.getNombre() + "! ¿Cómo te sientes hoy o qué género quieres ver?");
         System.out.println(" (Escribe 'salir' para finalizar la sesion)");
         System.out.println("-----------------------------------------\n");
 
@@ -76,14 +80,22 @@ public class App {
             if (entrada.isEmpty()) continue;
 
             // =================================================================
-            // PUNTO DE INTEGRACION CON PLN Y RECOMENDACION:
-            // 
-            // String textoLimpio = ProcesadorPLN.traducirEntrada(entrada);
-            // String recomendacion = Recomendador.obtenerPelicula(textoLimpio);
-            // usuarioActual.setPeliculaRecomendada(recomendacion);
+            // INTEGRACIÓN PLN Y MOTOR DE RECOMENDACIÓN
             // =================================================================
+            
+            // A. Procesamiento de texto (limpieza y sinónimos)
+            String textoLimpio = ProcesadorPLN.procesadorTexto(entrada);
 
-            System.out.println("CineBot: Procesando tu consulta '" + entrada + "'...");
+            // B. Buscar la mejor película según la intención detectada
+            String respuestaBot = motorRecomendaciones.buscarMejorPelicula(textoLimpio);
+
+            // C. Si hubo una película encontrada, actualizamos el atributo del usuario
+            if (motorRecomendaciones.getUltimaRecomendada() != null) {
+                usuarioActual.setPeliculaRecomendada(motorRecomendaciones.getUltimaRecomendada().getTitulo());
+            }
+
+            // D. Imprimir respuesta en consola
+            System.out.println("CineBot: " + respuestaBot + "\n");
         }
 
         // 3. Persistencia de Usuario en CSV al salir
