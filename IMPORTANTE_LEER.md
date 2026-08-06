@@ -7,3 +7,9 @@ https://trello.com/invite/b/6a6793eb4bbd69ca5999511f/ATTI8164c49aa18b49363924ab5
 
 Enlace a los Roles en Google Docs (vista general)
 https://docs.google.com/document/d/104gC5lJJB6GDMcpRE_pnWYIIQqWrM-rHglbi2mUXPqE/edit?usp=sharing
+
+Para compilar todos los archivos ejecutar 
+javac -d bin src\App.java src\datos\*.java src\logica\*.java src\models\*.java src\reportes\*.java
+
+Para ejecutar el App.java
+java -cp bin App
