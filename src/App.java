@@ -48,17 +48,17 @@ public class App {
 
         System.out.println(YELLOW + ">>> REQUIERE IDENTIFICACION DE OPERADOR" + RESET);
 
-        System.out.print(GREEN + "[?] Ingresa tu nombre: " + RESET);
+        System.out.print(GREEN + " Ingresa tu nombre: " + RESET);
         String nombre = scanner.nextLine().trim();
         while (nombre.isEmpty()) {
-            System.out.print(RED + "[!] El nombre no puede estar vacio. Intentalo de nuevo: " + RESET);
+            System.out.print(RED + " El nombre no puede estar vacio. Intentalo de nuevo: " + RESET);
             nombre = scanner.nextLine().trim();
         }
 
-        System.out.print(GREEN + "[?] Ingresa tu genero (Masculino/Femenino/Otro): " + RESET);
+        System.out.print(GREEN + " Ingresa tu genero (Masculino/Femenino/Otro): " + RESET);
         String genero = scanner.nextLine().trim();
         while (!genero.equalsIgnoreCase("Masculino") && !genero.equalsIgnoreCase("Femenino") && !genero.equalsIgnoreCase("Otro")) {
-            System.out.print(RED + "[!] Genero invalido. Ingresa solo Masculino, Femenino u Otro: " + RESET);
+            System.out.print(RED + " Genero invalido. Ingresa solo Masculino, Femenino u Otro: " + RESET);
             genero = scanner.nextLine().trim();
         }
         genero = genero.substring(0, 1).toUpperCase() + genero.substring(1).toLowerCase();
@@ -68,17 +68,17 @@ public class App {
         int anioActual = Year.now().getValue();
 
         while (!anioValido) {
-            System.out.print(GREEN + "[?] Ingresa tu año de nacimiento (ej. 2005): " + RESET);
+            System.out.print(GREEN + " Ingresa tu año de nacimiento (ej. 2005): " + RESET);
             String entradaAnio = scanner.nextLine().trim();
             try {
                 anioNacimiento = Integer.parseInt(entradaAnio);
                 if (anioNacimiento >= 1900 && anioNacimiento <= anioActual) {
                     anioValido = true;
                 } else {
-                    System.err.println(RED + "[!] Año fuera de rango. Debe estar entre 1900 y " + anioActual + "." + RESET);
+                    System.err.println(RED + " Año fuera de rango. Debe estar entre 1900 y " + anioActual + "." + RESET);
                 }
             } catch (NumberFormatException e) {
-                System.err.println(RED + "[!] Entrada invalida. Por favor, ingresa un numero entero." + RESET);
+                System.err.println(RED + " Entrada invalida. Por favor, ingresa un numero entero." + RESET);
             }
         }
 

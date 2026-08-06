@@ -122,9 +122,14 @@ public class MotorRecomendaciones {
             Random rand = new Random();
             mejorPelicula = candidatos.get(rand.nextInt(candidatos.size()));
             
-            String prefijoEmpatico = "¡Esa la tengo clara! Deberías ver "; // Respuesta por defecto
+           String prefijoEmpatico = "¡Esa la tengo clara! Deberías ver "; // Respuesta por defecto
 
-            if (textoProcesado.contains("tristeza") || textoProcesado.contains("soledad") || textoProcesado.contains("triste") || textoProcesado.contains("despecho") || textoProcesado.contains("llorar")) {
+            // NUEVA CONDICIÓN: Intercepta si el usuario está pidiendo otra opción
+            if (textoProcesado.contains("otra") || textoProcesado.contains("siguiente") || textoProcesado.contains("cambia") || textoProcesado.contains("mas") || textoProcesado.contains("no")) {
+                prefijoEmpatico = "¡Entendido! Vamos con otra excelente opción para ti. ¿Qué tal si vemos ";
+            } 
+            // Si es la primera vez que lo dice, evalúa las emociones
+            else if (textoProcesado.contains("tristeza") || textoProcesado.contains("soledad") || textoProcesado.contains("triste") || textoProcesado.contains("despecho") || textoProcesado.contains("llorar")) {
                 prefijoEmpatico = "Lamento mucho que te sientas así. A veces el cine es el mejor abrazo. Te recomiendo ver ";
             } else if (textoProcesado.contains("alegria") || textoProcesado.contains("feliz") || textoProcesado.contains("risa") || textoProcesado.contains("divertido") || textoProcesado.contains("excelente")) {
                 prefijoEmpatico = "¡Qué genial que estés de tan buen humor! Para potenciar esa energía, tienes que ver ";
