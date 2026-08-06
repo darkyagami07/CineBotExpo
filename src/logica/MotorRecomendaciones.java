@@ -3,6 +3,7 @@ package logica;
 import datos.GestorCatalogo;
 import models.Pelicula;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -35,9 +36,46 @@ public class MotorRecomendaciones {
             textoProcesado = textoProcesado + " " + ultimoContextoExitoso;
         }
 
+        // Detectar consultas fuera de contexto (matemáticas, definiciones, fechas, clima, etc.)
+        String textoMinusculas = textoProcesado.toLowerCase();
+        if (textoMinusculas.matches(".*\\b(cuanto|cuánto|que es|qué es|definici[oó]n|que dia|qué dia|fecha|hora|clima|tiempo|temperatura|quien es|quién es|capital de|como llegar|cómo llegar)\\b.*")
+                || textoMinusculas.matches(".*\\d+\\s*[+\\-*/]\\s*\\d+.*")
+                || textoMinusculas.matches(".*[+\\-*/].*")) {
+            return "Lo siento, solo soy un recomendador de películas; puedo ayudar con emociones, géneros y recomendaciones.";
+        }
+
         String[] palabrasUsuario = textoProcesado.toLowerCase().split("\\s+");
         List<Pelicula> catalogo = GestorCatalogo.getInstancia().getCatalogoPeliculas();
         Map<String, String> diccionarioPLN = GestorCatalogo.getInstancia().getDiccionarioSinonimos();
+
+        // Detectar emociones presentes en el texto procesado (incluye 'soledad')
+        Set<String> emocionesDetectadas = new HashSet<>();
+        String[] emocionesPosibles = {"alegria", "tristeza", "miedo", "ira", "asco", "sorpresa", "soledad"};
+        for (String emo : emocionesPosibles) {
+            if (textoProcesado.matches(".*\\b" + Pattern.quote(emo) + "\\b.*")) {
+                emocionesDetectadas.add(emo);
+            }
+        }
+
+        // Construir conjunto de géneros prohibidos según emoción detectada
+        Set<String> generosProhibidos = new HashSet<>();
+        for (String emo : emocionesDetectadas) {
+            if (emo.equals("tristeza") || emo.equals("soledad")) {
+                generosProhibidos.addAll(Arrays.asList("terror", "suspenso", "gore"));
+            } else if (emo.equals("miedo")) {
+                generosProhibidos.addAll(Arrays.asList("terror", "horror"));
+            }
+        }
+
+        // Si el usuario pide explícitamente un género, respetarlo (no filtrar)
+        List<String> generosOficiales = Arrays.asList("accion", "comedia", "romance", "terror", "drama", "fantasia", "animacion", "suspenso", "documental");
+        boolean generoExplicito = false;
+        for (String g : generosOficiales) {
+            if (textoProcesado.matches(".*\\b" + Pattern.quote(g) + "\\b.*")) {
+                generoExplicito = true;
+                break;
+            }
+        }
 
         List<Pelicula> candidatos = new ArrayList<>();
         Pelicula mejorPelicula = null;
@@ -116,9 +154,11 @@ public class MotorRecomendaciones {
             return introAleatoria + "'" + mejorPelicula.getTitulo() + "'" + conectorAleatorio + mejorPelicula.getMensajeBot();
 
         } else {
-            // Filtro para operaciones matemáticas o números
-            if (textoProcesado.matches(".*\\d.*") || textoProcesado.matches(".*[+\\-*/].*")) {
-                return "¡Ups! Mi núcleo de procesamiento está calibrado exclusivamente para el séptimo arte. No resuelvo operaciones matemáticas ni consultas generales. ¡Pero pregúntame de cine! ¿Qué género te gustaría ver?";
+            // Filtro para operaciones matemáticas o preguntas tipo "¿cuánto es 1+1?"
+            if (textoProcesado.matches(".*\\b(cuanto|cuánto)\\b.*\\d.*") ||
+                textoProcesado.matches(".*\\d+\\s*[+\\-*/]\\s*\\d+.*") ||
+                textoProcesado.matches(".*[+\\-*/].*")) {
+                return "Lo siento, solo soy un recomendador de películas, no una calculadora.";
             }
 
             // Fallback
