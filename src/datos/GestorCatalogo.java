@@ -2,9 +2,11 @@ package datos;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -44,17 +46,16 @@ public class GestorCatalogo {
             return;
         }
 
-        try (BufferedReader br = new BufferedReader(new FileReader(archivo))) {
+        // Se especifica UTF-8 para evitar problemas con tildes o la 'ñ'
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(archivo), StandardCharsets.UTF_8))) {
             String linea;
             boolean primeraLinea = true;
 
             while ((linea = br.readLine()) != null) {
-                // Ignorar líneas vacías
                 if (linea.trim().isEmpty()) {
                     continue;
                 }
 
-                // Omitir encabezado
                 if (primeraLinea) { 
                     primeraLinea = false; 
                     continue; 
@@ -63,7 +64,6 @@ public class GestorCatalogo {
                 // Separar por punto y coma ignorando las comillas internas
                 String[] datos = linea.split(";(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
 
-                // Verificar que existan al menos 6 columnas (id, titulo, genero, anio, palabras, mensajeBot)
                 if (datos.length < 6) {
                     System.err.println("Advertencia: Se omitio una fila defectuosa (menos de 6 columnas) en peliculas.csv");
                     continue;
@@ -80,7 +80,6 @@ public class GestorCatalogo {
 
                     String mensajeBot = datos[5].replace("\"", "").trim();
 
-                    // Instancia de Pelicula con los 6 campos completos
                     this.catalogoPeliculas.add(new Pelicula(id, titulo, genero, anio, palabras, mensajeBot));
 
                 } catch (NumberFormatException e) {
@@ -104,7 +103,7 @@ public class GestorCatalogo {
             return;
         }
 
-        try (BufferedReader br = new BufferedReader(new FileReader(archivo))) {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(archivo), StandardCharsets.UTF_8))) {
             String linea;
             boolean primeraLinea = true;
 
@@ -118,7 +117,8 @@ public class GestorCatalogo {
                     continue; 
                 }
 
-                String[] datos = linea.split(";");
+                // Dividir solo en 2 partes en la primera coma
+                String[] datos = linea.split(",", 2);
 
                 if (datos.length < 2) {
                     System.err.println("Advertencia: Se omitio una linea invalida en sinonimos.csv");
