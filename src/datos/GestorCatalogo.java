@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import models.Pelicula;
 
 public class GestorCatalogo {
@@ -17,7 +16,7 @@ public class GestorCatalogo {
     // 1. Instancia única estática (Singleton)
     private static GestorCatalogo instancia;
 
-    // Referencias protegidas contra modificación
+    // Colecciones del catálogo y diccionario protegidas contra reasignación
     private final List<Pelicula> catalogoPeliculas;
     private final Map<String, String> diccionarioSinonimos;
 
@@ -29,7 +28,7 @@ public class GestorCatalogo {
         cargarSinonimosCSV("sinonimos.csv");
     }
 
-    // 3. Acceso global sincronizado
+    // 3. Acceso global sincronizado (Singleton)
     public static synchronized GestorCatalogo getInstancia() {
         if (instancia == null) {
             instancia = new GestorCatalogo();
@@ -50,7 +49,7 @@ public class GestorCatalogo {
             boolean primeraLinea = true;
 
             while ((linea = br.readLine()) != null) {
-                // Validación 1: Ignorar líneas vacías
+                // Ignorar líneas vacías
                 if (linea.trim().isEmpty()) {
                     continue;
                 }
@@ -61,10 +60,10 @@ public class GestorCatalogo {
                     continue; 
                 }
 
-                // Expresión regular para separar por punto y coma ignorando comas dentro de comillas ("...")
+                // Separar por punto y coma ignorando las comillas internas
                 String[] datos = linea.split(";(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
 
-                // Validación 2: Verificar que existan al menos 6 columnas
+                // Verificar que existan al menos 6 columnas (id, titulo, genero, anio, palabras, mensajeBot)
                 if (datos.length < 6) {
                     System.err.println("Advertencia: Se omitio una fila defectuosa (menos de 6 columnas) en peliculas.csv");
                     continue;
@@ -81,7 +80,7 @@ public class GestorCatalogo {
 
                     String mensajeBot = datos[5].replace("\"", "").trim();
 
-                    // Pasa 'anio' y 'mensajeBot' (String único)
+                    // Instancia de Pelicula con los 6 campos completos
                     this.catalogoPeliculas.add(new Pelicula(id, titulo, genero, anio, palabras, mensajeBot));
 
                 } catch (NumberFormatException e) {

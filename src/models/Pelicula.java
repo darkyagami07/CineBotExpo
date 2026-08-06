@@ -8,8 +8,9 @@ public class Pelicula {
     private String genero;
     private int anio;
     private String[] palabrasClave;
-    private String mensajeBot; // <--- Cambiado de String[] a String
+    private String mensajeBot;
 
+    // Constructor completo con los 6 parámetros requeridos por la arquitectura del sistema
     public Pelicula(int id, String titulo, String genero, int anio, String[] palabrasClave, String mensajeBot) {
         this.id = id;
         this.titulo = titulo;
@@ -19,12 +20,30 @@ public class Pelicula {
         this.mensajeBot = mensajeBot;
     }
 
-    public int getId() { return id; }
-    public String getTitulo() { return titulo; }
-    public String getGenero() { return genero; }
-    public int getAnio() { return anio; }
-    public String[] getPalabrasClave() { return palabrasClave; }
-    public String getMensajeBot() { return mensajeBot; } // <--- Cambiado a String
+    // --- GETTERS ---
+    public int getId() { 
+        return id; 
+    }
+
+    public String getTitulo() { 
+        return titulo; 
+    }
+
+    public String getGenero() { 
+        return genero; 
+    }
+
+    public int getAnio() { 
+        return anio; 
+    }
+
+    public String[] getPalabrasClave() { 
+        return palabrasClave; 
+    }
+
+    public String getMensajeBot() { 
+        return mensajeBot; 
+    }
 
     @Override
     public String toString() {
