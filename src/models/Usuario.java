@@ -6,10 +6,15 @@ public class Usuario {
     private String genero;
     private int anioNacimiento;
     private String peliculaRecomendada;
-
     private String generoPreferido;
-    // Constructor con validaciones básicas
-  public Usuario(String nombre, String genero, int anioNacimiento, String generoPreferido) {
+
+    // Constructor de 3 parámetros
+    public Usuario(String nombre, String genero, int anioNacimiento) {
+        this(nombre, genero, anioNacimiento, "Sin preferencia");
+    }
+
+    // Constructor completo de 4 parámetros
+    public Usuario(String nombre, String genero, int anioNacimiento, String generoPreferido) {
         setNombre(nombre);
         setGenero(genero);
         setAnioNacimiento(anioNacimiento);
@@ -21,7 +26,6 @@ public class Usuario {
 
     public String getNombre() { 
         return nombre; 
-    
     }
 
     public void setNombre(String nombre) {
@@ -67,24 +71,23 @@ public class Usuario {
         }
     }
 
+    public String getGeneroPreferido() {
+        return generoPreferido;
+    }
+
+    public void setGeneroPreferido(String generoPreferido) {
+        this.generoPreferido = generoPreferido;
+    }
+
     // --- MÉTODOS DE UTILIDAD ---
 
     public int getEdad(int anioActual) {
         return anioActual - this.anioNacimiento;
     }
-  
-    // Método para LEER el género preferido (esto quita la advertencia amarilla)
-    public String getGeneroPreferido() {
-        return generoPreferido;
-    }
 
-    // Método para ACTUALIZAR el género preferido (lo usaremos desde Registro.java)
-    public void setGeneroPreferido(String generoPreferido) {
-        this.generoPreferido = generoPreferido;
-    }
     @Override
     public String toString() {
-        return String.format("Usuario: %s | Género: %s | Año: %d | Recomendación: %s", 
-                nombre, genero, anioNacimiento, peliculaRecomendada);
+        return String.format("Usuario: %s | Género: %s | Año: %d | Preferencia: %s | Recomendación: %s", 
+                nombre, genero, anioNacimiento, generoPreferido, peliculaRecomendada);
     }
 }
