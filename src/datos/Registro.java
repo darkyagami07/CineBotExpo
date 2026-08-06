@@ -20,32 +20,11 @@ public class Registro {
     public void iniciar() {
         Scanner sc = new Scanner(System.in);
 
-        ProcesadorPLN procesador = new ProcesadorPLN();
+      
         MotorRecomendaciones motor = new MotorRecomendaciones();
 
-        // --- 1. PANTALLA DE ARRANQUE (BOOT SEQUENCE) ---
-        System.out.println(CYAN + "  ____ _            ____        _   " + RESET);
-        System.out.println(CYAN + " / ___(_)_ __   ___| __ )  ___ | |_ " + RESET);
-        System.out.println(CYAN + "| |   | | '_ \\ / _ \\  _ \\ / _ \\| __|" + RESET);
-        System.out.println(CYAN + "| |___| | | | |  __/ |_) | (_) | |_ " + RESET);
-        System.out.println(CYAN + " \\____|_|_| |_|\\___|____/ \\___/ \\__|" + RESET);
-        System.out.println(GREEN + " [ CORE VERSION 2026.0 - ACTIVADO ]" + RESET + "\n");
-
-        try {
-            System.out.print("Inicializando módulos de lenguaje natural...");
-            Thread.sleep(700);
-            System.out.println(GREEN + " [OK]" + RESET);
-            
-            System.out.print("Cargando redes neuronales de recomendación...");
-            Thread.sleep(500);
-            System.out.println(GREEN + " [OK]" + RESET);
-            
-            System.out.print("Estableciendo conexión segura...");
-            Thread.sleep(400);
-            System.out.println(GREEN + " [OK]\n" + RESET);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+       
+       
 
       // --- 2. CAPTURA DE DATOS TIPO TERMINAL ---
         System.out.println(YELLOW + "sys_auth> REQUIERE IDENTIFICACIÓN DE USUARIO" + RESET);
@@ -132,7 +111,7 @@ public class Registro {
             }
 
             // --- PROCESAMIENTO PLN ---
-            String textoProcesado = procesador.procesadorTexto(entradaUsuario);
+           String textoProcesado = ProcesadorPLN.procesadorTexto(entradaUsuario);
             
             // --- EFECTO IA: SIMULAR TIEMPO DE RESPUESTA ---
             System.out.print(YELLOW + "CineBot está analizando el catálogo..." + RESET);

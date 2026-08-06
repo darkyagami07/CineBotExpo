@@ -67,16 +67,6 @@ public class MotorRecomendaciones {
             }
         }
 
-        // Si el usuario pide explícitamente un género, respetarlo (no filtrar)
-        List<String> generosOficiales = Arrays.asList("accion", "comedia", "romance", "terror", "drama", "fantasia", "animacion", "suspenso", "documental");
-        boolean generoExplicito = false;
-        for (String g : generosOficiales) {
-            if (textoProcesado.matches(".*\\b" + Pattern.quote(g) + "\\b.*")) {
-                generoExplicito = true;
-                break;
-            }
-        }
-
         List<Pelicula> candidatos = new ArrayList<>();
         Pelicula mejorPelicula = null;
         int maxPuntos = 0;
@@ -125,33 +115,36 @@ public class MotorRecomendaciones {
             }
         }
 
-        // Respuesta con coincidencia exitosa
+        // ====================================================================
+        // Respuesta con coincidencia exitosa (LÓGICA DE EMPATÍA CINEMIND IA)
+        // ====================================================================
         if (maxPuntos > 0 && !candidatos.isEmpty()) {
             Random rand = new Random();
             mejorPelicula = candidatos.get(rand.nextInt(candidatos.size()));
+            
+            String prefijoEmpatico = "¡Esa la tengo clara! Deberías ver "; // Respuesta por defecto
+
+            if (textoProcesado.contains("tristeza") || textoProcesado.contains("soledad") || textoProcesado.contains("triste") || textoProcesado.contains("despecho") || textoProcesado.contains("llorar")) {
+                prefijoEmpatico = "Lamento mucho que te sientas así. A veces el cine es el mejor abrazo. Te recomiendo ver ";
+            } else if (textoProcesado.contains("alegria") || textoProcesado.contains("feliz") || textoProcesado.contains("risa") || textoProcesado.contains("divertido") || textoProcesado.contains("excelente")) {
+                prefijoEmpatico = "¡Qué genial que estés de tan buen humor! Para potenciar esa energía, tienes que ver ";
+            } else if (textoProcesado.contains("ira") || textoProcesado.contains("estres") || textoProcesado.contains("rabia") || textoProcesado.contains("arrecho") || textoProcesado.contains("molesto")) {
+                prefijoEmpatico = "Uf, entiendo esa frustración. Para que drenes un poco esa energía, te sugiero ";
+            } else if (textoProcesado.contains("miedo") || textoProcesado.contains("terror") || textoProcesado.contains("asustar") || textoProcesado.contains("culillo")) {
+                prefijoEmpatico = "¡Prepárate para saltar del asiento! Si de verdad buscas emociones fuertes, te recomiendo ";
+            } else if (textoProcesado.contains("amor") || textoProcesado.contains("romance") || textoProcesado.contains("enamorado")) {
+                prefijoEmpatico = "¡Ah, el amor! Para ponerte aún más romántico, la película perfecta es ";
+            } else if (textoProcesado.contains("aburrido") || textoProcesado.contains("ladillado")) {
+                prefijoEmpatico = "¡Vamos a quitarte ese aburrimiento enseguida! Te garantizo que te engancharás con ";
+            }
+
+            // Actualizar la memoria activa de la IA
             memoriaActiva.add(mejorPelicula.getId());
             this.ultimaRecomendada = mejorPelicula;
             this.ultimoContextoExitoso = textoProcesado;
 
-            String[] introducciones = {
-                "¡Tengo la opción perfecta! Te recomiendo ",
-                "Pensando en lo que me dices, creo que disfrutarás de ",
-                "Me parece que esta historia encaja muy bien: ",
-                "Para lo que buscas, definitivamente te sugiero ",
-                "¡Esa la tengo clara! Deberías ver "
-            };
-
-            String[] conectores = {
-                ". ",
-                ". Te cuento un poco: ",
-                ". Prepara las cotufas porque... ",
-                ". Te va a atrapar porque: "
-            };
-
-            String introAleatoria = introducciones[rand.nextInt(introducciones.length)];
-            String conectorAleatorio = conectores[rand.nextInt(conectores.length)];
-
-            return introAleatoria + "'" + mejorPelicula.getTitulo() + "'" + conectorAleatorio + mejorPelicula.getMensajeBot();
+            // Retornar la respuesta ensamblada
+            return prefijoEmpatico + "'" + mejorPelicula.getTitulo() + "'.\nTe cuento un poco: " + mejorPelicula.getMensajeBot();
 
         } else {
             // Filtro para operaciones matemáticas o preguntas tipo "¿cuánto es 1+1?"
