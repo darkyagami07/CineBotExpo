@@ -1,3 +1,4 @@
-Nombre,Genero,AñoNacimiento,PeliculaRecomendada
-Edward,Masculino,2007,The OfficeEdward;si;2000;Sin recomendación
-Edward;Masculino;2007;Sin recomendación
+Nombre;Genero;AnioNacimiento;PeliculaRecomendada
+TestUser;Masculino;1990;Spider-Man: Un Nuevo Universo
+osman;Masculino;2005;El Gran Showman
+TestUser;Masculino;1990;Spider-Man: Un Nuevo Universo

@@ -33,10 +33,11 @@ public class App {
         // Captura del Genero
         System.out.print("Ingresa tu genero (Masculino/Femenino/Otro): ");
         String genero = scanner.nextLine().trim();
-        while (genero.isEmpty()) {
-            System.out.print("El genero no puede estar vacio. Intentalo de nuevo: ");
+        while (!genero.equalsIgnoreCase("Masculino") && !genero.equalsIgnoreCase("Femenino") && !genero.equalsIgnoreCase("Otro")) {
+            System.out.print("Genero invalido. Ingresa solo Masculino, Femenino u Otro: ");
             genero = scanner.nextLine().trim();
         }
+        genero = genero.substring(0, 1).toUpperCase() + genero.substring(1).toLowerCase();
 
         // Captura del Anio de Nacimiento con validacion try-catch
         int anioNacimiento = 0;

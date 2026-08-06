@@ -2,9 +2,13 @@ package logica;
 
 import datos.GestorCatalogo;
 import models.Pelicula;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 public class MotorRecomendaciones {
 
@@ -33,7 +37,9 @@ public class MotorRecomendaciones {
 
         String[] palabrasUsuario = textoProcesado.toLowerCase().split("\\s+");
         List<Pelicula> catalogo = GestorCatalogo.getInstancia().getCatalogoPeliculas();
+        Map<String, String> diccionarioPLN = GestorCatalogo.getInstancia().getDiccionarioSinonimos();
 
+        List<Pelicula> candidatos = new ArrayList<>();
         Pelicula mejorPelicula = null;
         int maxPuntos = 0;
 
@@ -45,7 +51,15 @@ public class MotorRecomendaciones {
 
             int puntosActuales = 0;
             
-            // Comparación mejorada y flexible
+            // Puntos extra si el usuario menciona directamente un género de la película
+            Set<String> generosPeli = obtenerGenerosNormalizados(peli, diccionarioPLN);
+            for (String generoOficial : generosPeli) {
+                if (!generoOficial.isEmpty() && textoProcesado.matches(".*\\b" + Pattern.quote(generoOficial) + "\\b.*")) {
+                    puntosActuales += 3;
+                }
+            }
+
+            // Comparación mejorada y flexible para palabras clave emocionales/temáticas
             for (String palabraClave : peli.getPalabrasClave()) {
                 String claveLimpia = palabraClave.trim().toLowerCase();
                 if (claveLimpia.isEmpty()) continue;
@@ -66,17 +80,17 @@ public class MotorRecomendaciones {
             // Selección por mayor puntuación
             if (puntosActuales > maxPuntos) {
                 maxPuntos = puntosActuales;
-                mejorPelicula = peli;
-            } else if (puntosActuales == maxPuntos && maxPuntos > 0 && mejorPelicula != null) {
-                // Desempate por ID más reciente
-                if (peli.getId() > mejorPelicula.getId()) {
-                    mejorPelicula = peli;
-                }
+                candidatos.clear();
+                candidatos.add(peli);
+            } else if (puntosActuales == maxPuntos && puntosActuales > 0) {
+                candidatos.add(peli);
             }
         }
 
         // Respuesta con coincidencia exitosa
-        if (maxPuntos > 0 && mejorPelicula != null) {
+        if (maxPuntos > 0 && !candidatos.isEmpty()) {
+            Random rand = new Random();
+            mejorPelicula = candidatos.get(rand.nextInt(candidatos.size()));
             memoriaActiva.add(mejorPelicula.getId());
             this.ultimaRecomendada = mejorPelicula;
             this.ultimoContextoExitoso = textoProcesado;
@@ -96,7 +110,6 @@ public class MotorRecomendaciones {
                 ". Te va a atrapar porque: "
             };
 
-            Random rand = new Random();
             String introAleatoria = introducciones[rand.nextInt(introducciones.length)];
             String conectorAleatorio = conectores[rand.nextInt(conectores.length)];
 
@@ -128,5 +141,33 @@ public class MotorRecomendaciones {
         memoriaActiva.clear();
         ultimaRecomendada = null;
         ultimoContextoExitoso = "";
+    }
+
+    private static Set<String> obtenerGenerosNormalizados(Pelicula pelicula, Map<String, String> diccionarioPLN) {
+        Set<String> generos = new HashSet<>();
+        if (pelicula == null || pelicula.getGenero() == null || pelicula.getGenero().trim().isEmpty()) {
+            return generos;
+        }
+
+        String[] partesGenero = pelicula.getGenero().toLowerCase().split("[/\\\\|,]");
+        for (String parte : partesGenero) {
+            String generoNormalizado = normalizarGenero(parte, diccionarioPLN);
+            if (!generoNormalizado.isEmpty()) {
+                generos.add(generoNormalizado);
+            }
+        }
+        return generos;
+    }
+
+    private static String normalizarGenero(String genero, Map<String, String> diccionarioPLN) {
+        if (genero == null || genero.trim().isEmpty()) {
+            return "";
+        }
+
+        String clave = genero.trim().toLowerCase();
+        if (diccionarioPLN != null && diccionarioPLN.containsKey(clave)) {
+            return diccionarioPLN.get(clave);
+        }
+        return clave;
     }
 }
