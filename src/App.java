@@ -94,6 +94,8 @@ public class App {
         // --- SALUDO INICIAL DEL BOT ---
         System.out.println(CYAN + "Cinemind IA: " + RESET + "Hola, " + usuarioActual.getNombre() + ". ¿Cómo te encuentras el día de hoy? Cuéntame cómo te sientes o qué género buscas.\n");
 
+        boolean ultimaFueRecomendada = false;
+        int respuestasBot = 0;
         String entrada = "";
         while (!entrada.equalsIgnoreCase("salir")) {
             System.out.print(GREEN + "Tu > " + RESET);
@@ -105,6 +107,16 @@ public class App {
             }
 
             if (entrada.isEmpty()) continue;
+
+            // Si el bot recomendó algo en el turno anterior y el usuario dice "sí"
+            if (ultimaFueRecomendada && (entrada.equalsIgnoreCase("si") || 
+                                         entrada.equalsIgnoreCase("sí") || 
+                                         entrada.equalsIgnoreCase("aceptar") || 
+                                         entrada.equalsIgnoreCase("me gusta") || 
+                                         entrada.equalsIgnoreCase("ok"))) {
+                System.out.println(CYAN + "\nCinemind IA: ¡Excelente elección! Disfruta de la película. Guardando preferencia y cerrando sesión..." + RESET);
+                break;
+            }
             
             System.out.print(PURPLE + "Cinemind IA esta analizando parametros..." + RESET);
             try {
@@ -117,9 +129,26 @@ public class App {
 
             if (motorRecomendaciones.getUltimaRecomendada() != null) {
                 usuarioActual.setPeliculaRecomendada(motorRecomendaciones.getUltimaRecomendada().getTitulo());
+                usuarioActual.setGeneroPreferido(motorRecomendaciones.getUltimaRecomendada().getGenero());
             }
 
-            System.out.println(CYAN + "Cinemind IA: " + RESET + respuestaBot + "\n");
+            System.out.println(CYAN + "Cinemind IA: " + RESET + respuestaBot);
+
+            // Límite de respuestas del bot por sesión (máximo 3)
+            respuestasBot++;
+            if (respuestasBot >= 3) {
+                System.out.println(CYAN + "Cinemind IA: " + RESET + "He llegado al límite de recomendaciones de esta sesión. Espero haberte ayudado a encontrar tu próxima película. ¡Hasta pronto!" + RESET);
+                break;
+            }
+
+            // Verificamos si la respuesta del motor fue una recomendación exitosa
+            if (motorRecomendaciones.isUltimaRecomendacionExitosa()) {
+                ultimaFueRecomendada = true;
+                System.out.println(CYAN + "Cinemind IA: ¿Te gusta la recomendación? (Responde 'sí' para confirmar, 'no' para ver otra opción, o 'salir' para terminar)\n" + RESET);
+            } else {
+                ultimaFueRecomendada = false;
+                System.out.println();
+            }
         }
 
         try {

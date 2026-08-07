@@ -16,11 +16,13 @@ public class MotorRecomendaciones {
     private HashSet<Integer> memoriaActiva; // Guarda IDs de películas ya recomendadas
     private Pelicula ultimaRecomendada;
     private String ultimoContextoExitoso;
+    private boolean ultimaRecomendacionExitosa;
 
     public MotorRecomendaciones() {
         this.memoriaActiva = new HashSet<>();
         this.ultimaRecomendada = null;
         this.ultimoContextoExitoso = "";
+        this.ultimaRecomendacionExitosa = false;
     }
 
     public String buscarMejorPelicula(String textoProcesado) {
@@ -44,7 +46,18 @@ public class MotorRecomendaciones {
             return "Lo siento, solo soy un recomendador de películas; puedo ayudar con emociones, géneros y recomendaciones.";
         }
 
-        String[] palabrasUsuario = textoProcesado.toLowerCase().split("\\s+");
+        String textoProcesadoMinusculas = textoProcesado.toLowerCase();
+        boolean esNuevaSolicitud = !textoProcesadoMinusculas.contains("otra")
+                && !textoProcesadoMinusculas.contains("siguiente")
+                && !textoProcesadoMinusculas.contains("cambia")
+                && !textoProcesadoMinusculas.contains("mas")
+                && !textoProcesadoMinusculas.contains("no")
+                && !textoProcesadoMinusculas.contains("gusta")
+                && !textoProcesadoMinusculas.contains("mala")
+                && !textoProcesadoMinusculas.contains("si")
+                && !textoProcesadoMinusculas.contains("sí");
+
+        String[] palabrasUsuario = filtrarPalabrasSeguimiento(textoProcesadoMinusculas.split("\\s+"));
         List<Pelicula> catalogo = GestorCatalogo.getInstancia().getCatalogoPeliculas();
         Map<String, String> diccionarioPLN = GestorCatalogo.getInstancia().getDiccionarioSinonimos();
 
@@ -72,8 +85,9 @@ public class MotorRecomendaciones {
         int maxPuntos = 0;
 
         for (Pelicula peli : catalogo) {
-            // Ignorar películas ya recomendadas en la sesión activa
-            if (memoriaActiva.contains(peli.getId())) {
+            // Para una solicitud nueva, se permite volver a recomendar aunque la película ya haya sido vista antes.
+            // Esto evita que frases como "estoy aburrido" terminen en un fallback por memoria.
+            if (memoriaActiva.contains(peli.getId()) && !esNuevaSolicitud) {
                 continue;
             }
 
@@ -146,12 +160,16 @@ public class MotorRecomendaciones {
             // Actualizar la memoria activa de la IA
             memoriaActiva.add(mejorPelicula.getId());
             this.ultimaRecomendada = mejorPelicula;
-            this.ultimoContextoExitoso = textoProcesado;
+            // Se guarda el contexto limpio (sin "no"/"otra"/"mas") para que los seguimientos
+            // mantengan la emoción o el género que el usuario pidió originalmente.
+            this.ultimoContextoExitoso = limpiarContexto(textoProcesado);
+            this.ultimaRecomendacionExitosa = true;
 
             // Retornar la respuesta ensamblada
             return prefijoEmpatico + "'" + mejorPelicula.getTitulo() + "'.\nTe cuento un poco: " + mejorPelicula.getMensajeBot();
 
         } else {
+            this.ultimaRecomendacionExitosa = false;
             // Filtro para operaciones matemáticas o preguntas tipo "¿cuánto es 1+1?"
             if (textoProcesado.matches(".*\\b(cuanto|cuánto)\\b.*\\d.*") ||
                 textoProcesado.matches(".*\\d+\\s*[+\\-*/]\\s*\\d+.*") ||
@@ -175,10 +193,53 @@ public class MotorRecomendaciones {
         return ultimaRecomendada;
     }
 
+    public boolean isUltimaRecomendacionExitosa() {
+        return ultimaRecomendacionExitosa;
+    }
+
     public void limpiarMemoria() {
         memoriaActiva.clear();
         ultimaRecomendada = null;
         ultimoContextoExitoso = "";
+    }
+
+    // Elimina las palabras de seguimiento ("no", "otra", "mas", etc.) del contexto guardado,
+    // conservando solo la intención original (emoción o género) del usuario.
+    private String limpiarContexto(String texto) {
+        if (texto == null) {
+            return "";
+        }
+        String limpio = texto.toLowerCase();
+        String[] palabrasSeguimiento = {"no", "otra", "otro", "mas", "siguiente", "cambia", "gusta", "mala", "esa", "ese"};
+        for (String palabra : palabrasSeguimiento) {
+            limpio = limpio.replaceAll("\\b" + Pattern.quote(palabra) + "\\b", " ");
+        }
+        return limpio.replaceAll("\\s+", " ").trim();
+    }
+
+    // Quita del análisis las palabras de seguimiento ("no", "otra", "mas", etc.)
+    // para que no generen coincidencias falsas con palabras clave de las películas
+    // (por ejemplo, "no" dentro de "asesino" o "telefono").
+    private String[] filtrarPalabrasSeguimiento(String[] palabras) {
+        String[] palabrasSeguimiento = {"no", "otra", "otro", "mas", "siguiente", "cambia", "gusta", "mala", "esa", "ese", "si", "sí"};
+        List<String> filtradas = new ArrayList<>();
+        for (String palabra : palabras) {
+            String p = palabra.trim();
+            if (p.isEmpty()) {
+                continue;
+            }
+            boolean esSeguimiento = false;
+            for (String seg : palabrasSeguimiento) {
+                if (p.equals(seg)) {
+                    esSeguimiento = true;
+                    break;
+                }
+            }
+            if (!esSeguimiento) {
+                filtradas.add(p);
+            }
+        }
+        return filtradas.toArray(new String[0]);
     }
 
     private static Set<String> obtenerGenerosNormalizados(Pelicula pelicula, Map<String, String> diccionarioPLN) {

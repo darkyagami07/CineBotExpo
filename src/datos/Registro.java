@@ -81,6 +81,9 @@ public class Registro {
         System.out.println(YELLOW + ">>> CINEBOT ESTÁ ESCUCHANDO. (Escribe 'salir' para cerrar la sesión)\n" + RESET);
         System.out.println(GREEN + "CineBot: ¡Hola! Soy tu asistente de recomendaciones. Dime, ¿cómo te sientes hoy o qué tipo de historia te gustaría ver?" + RESET);
 
+        boolean ultimaFueRecomendada = false;
+        int respuestasBot = 0;
+
         while (true) {
             System.out.print(CYAN + "Tu: " + RESET);
             String entradaUsuario = sc.nextLine();
@@ -88,30 +91,23 @@ public class Registro {
             // --- LÓGICA DE SALIDA Y GUARDADO EN CSV ---
             if (entradaUsuario.trim().equalsIgnoreCase("salir")) {
                 System.out.println(YELLOW + "CineBot: Ha sido un placer hablar contigo. ¡Hasta luego!" + RESET);
-                
-                try {
-                    // Extraemos los datos directamente del Motor para las estadísticas
-                    if (motor.getUltimaRecomendada() != null) {
-                        usuarioActual.setGeneroPreferido(motor.getUltimaRecomendada().getGenero());
-                        usuarioActual.setPeliculaRecomendada(motor.getUltimaRecomendada().getTitulo());
-                    } else {
-                        // Por si el usuario entra y sale sin pedir nada
-                        usuarioActual.setGeneroPreferido("Ninguno");
-                        usuarioActual.setPeliculaRecomendada("Ninguna");
-                    }
-                    
-                    // Guardamos en el CSV
-                    datos.GestorPersistencia.registrarUsuario(usuarioActual);
-                    System.out.println(GREEN + "[OK] Historial guardado correctamente." + RESET);
-                } catch (Exception e) {
-                    System.err.println("Error al guardar el historial: " + e.getMessage());
-                }
-                
+                guardarYSalir(motor, usuarioActual);
+                break; // Rompe el ciclo y termina el chat
+            }
+
+            // Si el bot recomendó algo en el turno anterior y el usuario dice "sí"
+            if (ultimaFueRecomendada && (entradaUsuario.trim().equalsIgnoreCase("si") || 
+                                         entradaUsuario.trim().equalsIgnoreCase("sí") || 
+                                         entradaUsuario.trim().equalsIgnoreCase("aceptar") || 
+                                         entradaUsuario.trim().equalsIgnoreCase("me gusta") || 
+                                         entradaUsuario.trim().equalsIgnoreCase("ok"))) {
+                System.out.println(GREEN + "CineBot: ¡Excelente elección! Disfruta de la película." + RESET);
+                guardarYSalir(motor, usuarioActual);
                 break; // Rompe el ciclo y termina el chat
             }
 
             // --- PROCESAMIENTO PLN ---
-           String textoProcesado = ProcesadorPLN.procesadorTexto(entradaUsuario);
+            String textoProcesado = ProcesadorPLN.procesadorTexto(entradaUsuario);
             
             // --- EFECTO IA: SIMULAR TIEMPO DE RESPUESTA ---
             System.out.print(YELLOW + "CineBot está analizando el catálogo..." + RESET);
@@ -126,9 +122,46 @@ public class Registro {
 
             // --- BÚSQUEDA Y RESPUESTA FINAL ---
             String respuestaBot = motor.buscarMejorPelicula(textoProcesado);
-            System.out.println(GREEN + "CineBot: " + RESET + respuestaBot + "\n");
+            System.out.println(GREEN + "CineBot: " + RESET + respuestaBot);
+
+            // Límite de respuestas del bot por sesión (máximo 3)
+            respuestasBot++;
+            if (respuestasBot >= 3) {
+                System.out.println(GREEN + "CineBot: " + RESET + "He llegado al límite de recomendaciones de esta sesión. Espero haberte ayudado. ¡Hasta pronto!" + RESET);
+                guardarYSalir(motor, usuarioActual);
+                break;
+            }
+
+            // Verificamos si la respuesta del motor fue una recomendación exitosa
+            if (motor.isUltimaRecomendacionExitosa()) {
+                ultimaFueRecomendada = true;
+                System.out.println(GREEN + "CineBot: ¿Te gusta la recomendación? (Responde 'sí' para confirmar, 'no' para ver otra opción, o 'salir' para terminar)\n" + RESET);
+            } else {
+                ultimaFueRecomendada = false;
+                System.out.println(); // Salto de línea simple
+            }
         }
         
         sc.close();
+    }
+
+    private void guardarYSalir(MotorRecomendaciones motor, Usuario usuarioActual) {
+        try {
+            // Extraemos los datos directamente del Motor para las estadísticas
+            if (motor.getUltimaRecomendada() != null) {
+                usuarioActual.setGeneroPreferido(motor.getUltimaRecomendada().getGenero());
+                usuarioActual.setPeliculaRecomendada(motor.getUltimaRecomendada().getTitulo());
+            } else {
+                // Por si el usuario entra y sale sin pedir nada
+                usuarioActual.setGeneroPreferido("Ninguno");
+                usuarioActual.setPeliculaRecomendada("Ninguna");
+            }
+            
+            // Guardamos en el CSV
+            datos.GestorPersistencia.registrarUsuario(usuarioActual);
+            System.out.println(GREEN + "[OK] Historial guardado correctamente." + RESET);
+        } catch (Exception e) {
+            System.err.println("Error al guardar el historial: " + e.getMessage());
+        }
     }
 }
